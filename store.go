@@ -15,7 +15,7 @@ var (
 	messageTbl       = defaultMessageTbl
 )
 
-func SetTblNames(sourceMsgTbl, msgTbl string) {
+func (i *Intl) SetTblNames(sourceMsgTbl, msgTbl string) {
 	sourceMessageTbl = sourceMsgTbl
 	messageTbl = msgTbl
 }

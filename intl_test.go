@@ -22,7 +22,7 @@ func TestIntl_Translate(t *testing.T) {
 	defer db.Close()
 
 	var tests = map[string]struct {
-		before   func()
+		before   func(i *Intl)
 		key      string
 		lang     string
 		delivery *Delivery
@@ -30,26 +30,40 @@ func TestIntl_Translate(t *testing.T) {
 		err      error
 	}{
 		"ok": {
-			before: func() {
+			before: func(i *Intl) {
 				mock.ExpectQuery("SELECT .*").
-					WithArgs("delivery.datetime.price", "ru-RU").
+					WithArgs("delivery.datetime.price", "fr-FR").
 					WillReturnRows(sqlmock.NewRows([]string{"message", "translation"}).
 						AddRow("Hi, your delivery date is {{.Date}} and a price is {{.Price}}",
-							"Привет, ваша доставка будет осуществлена {{.Date}}, по цене {{.Price}}"))
+							"Bonjour, votre date de livraison est le {{.Date}} et le prix est le {{.Price}}"))
 			},
 			key:      "delivery.datetime.price",
-			lang:     "ru-RU",
-			delivery: &Delivery{Date: "завтра же", Price: 123},
-			msg:      "Привет, ваша доставка будет осуществлена завтра же, по цене 123",
+			lang:     "fr-FR",
+			delivery: &Delivery{Date: "demain", Price: 123},
+			msg:      "Bonjour, votre date de livraison est le demain et le prix est le 123",
+		},
+		"ok with changed table names": {
+			before: func(i *Intl) {
+				i.SetTblNames("tbl1", "tbl2")
+				mock.ExpectQuery("SELECT .*").
+					WithArgs("delivery.datetime.price", "fr-FR").
+					WillReturnRows(sqlmock.NewRows([]string{"message", "translation"}).
+						AddRow("Hi, your delivery date is {{.Date}} and a price is {{.Price}}",
+							"Bonjour, votre date de livraison est le {{.Date}} et le prix est le {{.Price}}"))
+			},
+			key:      "delivery.datetime.price",
+			lang:     "fr-FR",
+			delivery: &Delivery{Date: "demain", Price: 123},
+			msg:      "Bonjour, votre date de livraison est le demain et le prix est le 123",
 		},
 		"err sql: no rows in result set": {
-			before: func() {
+			before: func(i *Intl) {
 				mock.ExpectQuery("SELECT .*").
-					WithArgs("delivery.datetime.price", "ru-RU").
+					WithArgs("delivery.datetime.price", "fr-FR").
 					WillReturnRows(sqlmock.NewRows([]string{"message", "translation"}))
 			},
 			key:      "delivery.datetime.price",
-			lang:     "ru-RU",
+			lang:     "fr-FR",
 			delivery: &Delivery{Date: "завтра же", Price: 123},
 			msg:      "",
 			err:      errors.New("sql: no rows in result set"),
@@ -59,7 +73,7 @@ func TestIntl_Translate(t *testing.T) {
 	intl := NewIntl(db)
 	for n, tt := range tests {
 		t.Run(n, func(t *testing.T) {
-			tt.before()
+			tt.before(intl)
 			msg, err := intl.Translate(tt.key, tt.lang, tt.delivery)
 			if tt.err == nil {
 				assert.NoError(t, err)
