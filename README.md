@@ -6,6 +6,7 @@ Internationalization library based on different DB storages
 [![Build and test](https://github.com/arthurkushman/intl/actions/workflows/go.yml/badge.svg)](https://github.com/arthurkushman/intl/actions/workflows/go.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GoDoc](https://github.com/golang/gddo/blob/c782c79e0a3c3282dacdaaebeff9e6fd99cb2919/gddo-server/assets/status.svg)](https://godoc.org/github.com/arthurkushman/intl)
+[![codecov](https://codecov.io/gh/arthurkushman/intl/branch/main/graph/badge.svg?token=pgl3rRpiNh)](https://codecov.io/gh/arthurkushman/intl)
 
 ### Installation
 
