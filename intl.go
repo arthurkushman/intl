@@ -3,8 +3,14 @@ package intl
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"html/template"
+
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 )
+
+const DefaultTemplateName = "translate"
 
 type Translator interface {
 	Translate(key, lang string, params any) (string, error)
@@ -30,7 +36,13 @@ func (i *Intl) Translate(key, lang string, params any) (string, error) {
 		return "", err
 	}
 
-	t, err := template.New("todos").Parse(trans.TranslatedMsg)
+	var t *template.Template
+	if trans.TranslatedMsg != "" {
+		t, err = template.New(DefaultTemplateName).Parse(trans.TranslatedMsg)
+	} else {
+		t, err = template.New(DefaultTemplateName).Parse(trans.Message)
+	}
+
 	if err != nil {
 		return "", err
 	}
@@ -42,4 +54,51 @@ func (i *Intl) Translate(key, lang string, params any) (string, error) {
 	}
 
 	return tpl.String(), nil
+}
+
+// TranslatePlurals translates any message with plurals based on LocalizeConfig object
+// see: github.com/nicksnyder/go-i18n/v2/i18n
+// it tries to find translation language and makes fallback if not found
+/*
+ex. of LocalizeConfig:
+localizer.Localize(&i18n.LocalizeConfig{
+    DefaultMessage: &i18n.Message{
+        ID: "PersonCats",
+        One: "{{.Name}} has {{.Count}} cat.",
+        Other: "{{.Name}} has {{.Count}} cats.",
+    },
+    TemplateData: map[string]interface{}{
+        "Name": "Nick",
+        "Count": 2,
+    },
+    PluralCount: 2,
+}) // Nick has 2 cats.
+*/
+func (i *Intl) TranslatePlurals(key, lang string) (string, error) {
+	bundle := i18n.NewBundle(language.English)
+	localizer := i18n.NewLocalizer(bundle, lang)
+
+	trans, err := i.GetMessage(key, lang)
+	if err != nil {
+		return "", err
+	}
+
+	localizeConfig := &i18n.LocalizeConfig{}
+	if trans.TranslatedLocalizeConfig != "" {
+		err = json.Unmarshal([]byte(trans.TranslatedLocalizeConfig), localizeConfig)
+	} else {
+		err = json.Unmarshal([]byte(trans.LocalizeConfig), localizeConfig)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	localizeConfig.PluralCount = int(localizeConfig.PluralCount.(float64))
+	msg, err := localizer.Localize(localizeConfig)
+	if err != nil {
+		return "", err
+	}
+
+	return msg, nil
 }

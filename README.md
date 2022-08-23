@@ -12,6 +12,19 @@ Internationalization library based on different DB storages
 import "github.com/arthurkushman/intl"
 ```
 
+### Migrations
+You'll need a migration for particular database engine: postgresql, mysql, mssql, sqlite, oci which u can find in db/migrations folder.
+After running one u'll be set up, then u need to insert data e.g.:
+
+`source_message` table
+```
+1,delivery.datetime.price,"Hi, your delivery date is {{.Date}} and a price is {{.Price}}"
+```
+`message` table (in this example the last field localize_config u need only if using plurals)
+```
+1,fr-FR,"Bonjour, votre date de livraison est le {{.Date}} et le prix est le {{.Price}}","{\"DefaultMessage\": {\"ID\": \"Delivery\", \"One\": \"Bonjour, votre date de livraison est le {{.Date}} et le prix est le {{.Price}}\", \"Other\": \"Bonjour, votre date de livraison est le {{.Date}} many et le prix est le {{.Price}} many\"}, \"TemplateData\": {\"Date\": \"demain\", \"Price\": 123}, \"PluralCount\": 2}"
+```
+
 ### Message translation example
 
 ```go 
