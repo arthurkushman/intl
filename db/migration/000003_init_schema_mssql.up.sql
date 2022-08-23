@@ -6,16 +6,18 @@ drop table [message];
 
 CREATE TABLE [source_message]
 (
-    [id]          integer IDENTITY PRIMARY KEY,
-    [category]    varchar(255),
-    [message]     text
+    [id]              integer IDENTITY PRIMARY KEY,
+    [category]        varchar(255),
+    [message]         text,
+    [localize_config] text
     );
 
 CREATE TABLE [message]
 (
-    [id]          integer NOT NULL,
-    [language]    varchar(16) NOT NULL,
-    [translation] text
+    [id]              integer NOT NULL,
+    [language]        varchar(16) NOT NULL,
+    [translation]     text,
+    [localize_config] text
     );
 
 ALTER TABLE [message] ADD CONSTRAINT [pk_message_id_language] PRIMARY KEY ([id], [language]);
