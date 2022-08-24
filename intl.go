@@ -14,6 +14,7 @@ const DefaultTemplateName = "translate"
 
 type Translator interface {
 	Translate(key, lang string, params any) (string, error)
+	TranslatePlurals(key, lang string) (string, error)
 }
 
 type Intl struct {
@@ -75,7 +76,12 @@ localizer.Localize(&i18n.LocalizeConfig{
 }) // Nick has 2 cats.
 */
 func (i *Intl) TranslatePlurals(key, lang string) (string, error) {
-	bundle := i18n.NewBundle(language.English)
+	t, err := language.Parse(lang)
+	if err != nil {
+		return "", err
+	}
+
+	bundle := i18n.NewBundle(t)
 	localizer := i18n.NewLocalizer(bundle, lang)
 
 	trans, err := i.GetMessage(key, lang)

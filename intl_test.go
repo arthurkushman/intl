@@ -159,6 +159,23 @@ func TestIntl_TranslatePlural(t *testing.T) {
 			msg:  "",
 			err:  errors.New("sql: no rows in result set"),
 		},
+		"language: tag is not well-formed": {
+			before: func(i *Intl) {
+				mock.ExpectQuery("SELECT .*").
+					WithArgs("delivery.datetime.price", "fr-FR").
+					WillReturnRows(sqlmock.NewRows([]string{"message", "translation", "localize_config", "localize_config"}).
+						AddRow("Hi, your delivery date is {{.Date}} and a price is {{.Price}}",
+							"Bonjour, votre date de livraison est le {{.Date}} et le prix est le {{.Price}}",
+							"{\"DefaultMessage\": {\"ID\": \"Delivery\", \"One\": \"Bonjour, votre date de livraison est le "+
+								"{{.Date}} et le prix est le {{.Price}}\", \"Other\": \"Bonjour, votre date de livraison est le "+
+								"{{.Date}} many et le prix est le {{.Price}} many\"}, \"TemplateData\": {\"Date\": \"demain\", \"Price\": 123}, "+
+								"\"PluralCount\": 2}", ""))
+			},
+			key:  "delivery.datetime.price",
+			lang: "___fake-Lang___",
+			msg:  "",
+			err:  errors.New("language: tag is not well-formed"),
+		},
 	}
 
 	intl := NewIntl(db)
@@ -171,6 +188,7 @@ func TestIntl_TranslatePlural(t *testing.T) {
 				assert.Equal(t, tt.msg, msg)
 			} else {
 				assert.Error(t, err, tt.err)
+				assert.Equal(t, tt.err, err)
 			}
 		})
 	}
