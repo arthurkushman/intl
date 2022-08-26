@@ -101,8 +101,9 @@ func TestIntl_Translate(t *testing.T) {
 		},
 	}
 
-	for n, tt := range tests {
+	for n := range tests {
 		t.Run(n, func(t *testing.T) {
+			tt := tests[n]
 			intl := NewIntl(db)
 			tt.before(intl)
 			msg, err := intl.Translate(tt.key, tt.lang, tt.delivery)
@@ -225,8 +226,9 @@ func TestIntl_TranslatePlural(t *testing.T) {
 		},
 	}
 
-	for n, tt := range tests {
+	for n := range tests {
 		t.Run(n, func(t *testing.T) {
+			tt := tests[n]
 			intl := NewIntl(db)
 			tt.before(intl)
 			msg, err := intl.TranslatePlurals(tt.key, tt.lang)
