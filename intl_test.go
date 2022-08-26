@@ -101,9 +101,9 @@ func TestIntl_Translate(t *testing.T) {
 		},
 	}
 
-	intl := NewIntl(db)
 	for n, tt := range tests {
 		t.Run(n, func(t *testing.T) {
+			intl := NewIntl(db)
 			tt.before(intl)
 			msg, err := intl.Translate(tt.key, tt.lang, tt.delivery)
 			if tt.err == nil {
@@ -157,7 +157,7 @@ func TestIntl_TranslatePlural(t *testing.T) {
 			msg:  "Bonjour, votre date de livraison est le demain many et le prix est le 123 many",
 			err:  nil,
 		},
-		"err": {
+		"json unmarshal err": {
 			before: func(i *Intl) {
 				mock.ExpectQuery("SELECT .*").
 					WithArgs("delivery.datetime.price", "fr-FR").
@@ -225,9 +225,9 @@ func TestIntl_TranslatePlural(t *testing.T) {
 		},
 	}
 
-	intl := NewIntl(db)
 	for n, tt := range tests {
 		t.Run(n, func(t *testing.T) {
+			intl := NewIntl(db)
 			tt.before(intl)
 			msg, err := intl.TranslatePlurals(tt.key, tt.lang)
 			if tt.err == nil {
